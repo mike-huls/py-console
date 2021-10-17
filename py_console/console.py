@@ -44,8 +44,10 @@ class Console:
 
     def get_string(self, fg:str, bg:str, msg:str, showTime:bool=None) -> str:
         # Take care of showing time: showTime if specified else __defaultShowTime
-        theTime = self.__getTime() if (showTime or self.__defaultShowTime) else ''
-
+        if (showTime != None):
+            theTime = self.__getTime() if (showTime) else ''
+        else:
+            theTime = self.__getTime() if (self.__defaultShowTime) else ''
 
         # Take care of highlighting in message
         if (self.__reset in msg):

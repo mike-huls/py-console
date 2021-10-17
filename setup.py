@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setuptools.setup(
     name='py_console',  # should match the package folder
     packages=['py_console'],  # should match the package folder
-    version='0.0.1',  # important for updates
+    version='0.1.0',  # important for updates
     license='MIT',  # should match your chosen license
     description='Colorfull JavaScript-like console logging',
     long_description=long_description,  # loads your README.md
@@ -32,5 +32,5 @@ setuptools.setup(
         'Programming Language :: Python :: 3.10',
     ],
 
-    download_url="https://github.com/mike-huls/py-console/archive/refs/tags/v0.0.1.tar.gz",
+    download_url="https://github.com/mike-huls/py-console/archive/refs/tags/v0.1.0.tar.gz",
 )
