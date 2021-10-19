@@ -64,11 +64,9 @@ class ConsoleSettings:
 
 class Console:
 
-
     __reset: str = colorama.Fore.RESET + colorama.Back.RESET + colorama.Style.RESET_ALL # '\x1b[0m'
     __logDict:{int: ColoredLog} = {}
     settings = ConsoleSettings()
-
 
     def __init__(self):
         colorama.init(autoreset=False)
@@ -88,16 +86,6 @@ class Console:
         pass
     # endregion Console Functions
 
-    def __createConsoleRecord(self, type:ELogTypes, message:str, severe:bool, showTime:bool, textColor:str, bgColor:str):
-        return ColoredLog(
-            type=type,
-            message=message,
-            severe=severe,
-            showTime=showTime or self.settings.showTime if (showTime == None) else showTime,
-            timeFormat=self.settings.timeFormat,
-            textColor=textColor,
-            bgColor=bgColor
-        )
 
     # region Printing lines
     def log(self, *message:str, severe:bool=False, showTime:bool=None):
@@ -133,6 +121,16 @@ class Console:
         return cr
     # endregion
 
+    def __createConsoleRecord(self, type:ELogTypes, message:str, severe:bool, showTime:bool, textColor:str, bgColor:str):
+        return ColoredLog(
+            type=type,
+            message=message,
+            severe=severe,
+            showTime=showTime or self.settings.showTime if (showTime == None) else showTime,
+            timeFormat=self.settings.timeFormat,
+            textColor=textColor,
+            bgColor=bgColor
+        )
     def highlight(self, message:str, bgColor:str=colorama.Back.YELLOW, textColor:str=colorama.Fore.BLACK):
         cr = self.__createConsoleRecord(
             type=ELogTypes.info.value,
@@ -152,17 +150,6 @@ class Console:
 
 
 
-
 console_instance = Console()
 
-console_instance.settings.keepHistory = True
-console_instance.success('tests', severe=True)
-console_instance.warn('tests', 2, 'jo', 'tests', severe=True)
-console_instance.error('tests', 2, 'jo', 'tests', severe=True)
-console_instance.info('tests', 2, 'jo', 'tests', severe=True)
-console_instance.log('tests', 2, 'jo', 'tests', severe=True)
-
-console_instance.settings.showTime = True
-
-console_instance.refresh_console()
 
