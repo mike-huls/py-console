@@ -1,6 +1,6 @@
 # Welcome to py-console
 I've always liked the ease with which we can log colorfull warning, errors and messages using JavaScript in a webbrowser console.
-This package allows you to do just that
+This package allows you to do just that. Check out more information [here](https://mikehuls.medium.com/python-printing-colorful-outputs-with-ease-b4e2a183db7c).
 
 ## Installation
 ```commandline
