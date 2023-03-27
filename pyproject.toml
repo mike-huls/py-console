@@ -1,0 +1,25 @@
+[project]
+name = "py_console"
+version = "0.1.5"
+description = "Colorful JavaScript-like console logging"
+requires-python = ">=3.9"
+readme = "README.md"
+dependencies = ['colorama']
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+[[project.authors]]
+name = "Mike=Huls"
+email = "mikehuls42@gmail.com"
+
+[build-system]
+requires = [ "setuptools>=61.0",]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://bitbucket.org/LeadQ/dnxlogger"
+"Bug Tracker" = "https://github.com/mike-huls/py-console/issues"
+
+[tool.setuptools]

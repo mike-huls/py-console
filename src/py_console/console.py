@@ -80,7 +80,7 @@ class Console:
         self.settings.showTime = doShowTime
     def setTimeFormat(self, timeFormat:str):
         self.settings.timeFormat = timeFormat
-    def setLoggingPath(self, path:str, when:str, interval:int, backup_count:int, encoding:str='utf=8', overwrite:bool=False):
+    def setLoggingPath(self, path:str, when:str, interval:int, backup_count:int, encoding:str='utf=8'):
         """ Logs out all printed statements to a file """
         logger = logging.getLogger(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
         logger.setLevel(level=logging.DEBUG)
