@@ -1,10 +1,14 @@
+import re
+import string
+from logging import handlers
+import logging
 import os
 import datetime
 from dataclasses import dataclass
 
 import colorama
 
-from py_console.definitions import ELogTypes
+from src.py_console.definitions import ELogTypes
 
 
 class ColoredLog:
@@ -31,7 +35,6 @@ class ColoredLog:
         self.textColor = textColor #if (textColor != None) else self.__getDefaultTextColor()
         self.bgColor = bgColor #if (bgColor != None) else self.__getDefaultBgColor()
         self.style = colorama.Style.NORMAL
-
 
     def __str__(self):
         _timestamp = f"[{self.timestamp.strftime(self.timeFormat)}] " if (self.showTime) else ''
@@ -65,8 +68,9 @@ class ConsoleSettings:
 class Console:
 
     __reset: str = colorama.Fore.RESET + colorama.Back.RESET + colorama.Style.RESET_ALL # '\x1b[0m'
-    __logDict:{int: ColoredLog} = {}
+    __log_history:{int: ColoredLog} = {}
     settings = ConsoleSettings()
+    __logger:logging.Logger = None
 
     def __init__(self):
         colorama.init(autoreset=False)
@@ -76,6 +80,27 @@ class Console:
         self.settings.showTime = doShowTime
     def setTimeFormat(self, timeFormat:str):
         self.settings.timeFormat = timeFormat
+    def setLoggingPath(self, path:str, when:str, interval:int, backup_count:int, encoding:str='utf=8', overwrite:bool=False):
+        """ Logs out all printed statements to a file """
+        logger = logging.getLogger(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+        logger.setLevel(level=logging.DEBUG)
+        # create console handler with a higher log level
+        fh: handlers.TimedRotatingFileHandler = handlers.TimedRotatingFileHandler(
+            filename=path,
+            when=when,
+            interval=interval,
+            backupCount=backup_count,
+            encoding=encoding,
+        )
+        # Log everything
+        fh.setLevel(logging.DEBUG)
+        # Format the logs
+        formatter = logging.Formatter('%(message)s')
+        formatter.datefmt = "%H:%M:%S"
+        fh.setFormatter(formatter)
+        # add the handlers to the logger
+        logger.addHandler(fh)
+        self.__logger = logger
     # endregion
 
     # region Console Functions
@@ -88,27 +113,27 @@ class Console:
 
 
     # region Printing lines
-    def log(self, *message:str, severe:bool=False, showTime:bool=None):
-        message = " ".join([str(m) for m in message])
-        cr = self.__create_line(logType=ELogTypes.log, message=f'{message}', severe=severe, showTime=showTime)
-        print(cr)
-    def warn(self, *message:str, severe:bool=False, showTime:bool=None):
-        message = " ".join([str(m) for m in message])
-        cr = self.__create_line(logType=ELogTypes.warn, message=f'{message}', severe=severe, showTime=showTime)
-        print(cr)
-    def error(self, *message:str, severe:bool=False, showTime:bool=None):
-        message = " ".join([str(m) for m in message])
-        cr = self.__create_line(logType=ELogTypes.error, message=f'{message}', severe=severe, showTime=showTime)
-        print(cr)
-    def success(self, *message:str, severe:bool=False, showTime:bool=None):
-        message = " ".join([str(m) for m in message])
-        cr = self.__create_line(logType=ELogTypes.success, message=f'{message}', severe=severe, showTime=showTime)
-        print(cr)
-    def info(self, *message:str, severe:bool=False, showTime:bool=None):
-        message = " ".join([str(m) for m in message])
-        cr = self.__create_line(logType=ELogTypes.info, message=f'{message}', severe=severe, showTime=showTime)
-        print(cr)
-    def __create_line(self, logType:ELogTypes, message:str, severe:bool, showTime:bool):
+    def log(self, *msg:str, severe:bool=False, showTime:bool=None):
+        msg = " ".join([str(m) for m in msg])
+        cr = self.__create_line(logType=ELogTypes.log, message=f'{msg}', severe=severe, showTime=showTime)
+        self.__log_line(log=cr)
+    def warn(self, *msg:str, severe:bool=False, showTime:bool=None):
+        msg = " ".join([str(m) for m in msg])
+        cr = self.__create_line(logType=ELogTypes.warn, message=f'{msg}', severe=severe, showTime=showTime)
+        self.__log_line(log=cr)
+    def error(self, *msg:str, severe:bool=False, showTime:bool=None):
+        msg = " ".join([str(m) for m in msg])
+        cr = self.__create_line(logType=ELogTypes.error, message=f'{msg}', severe=severe, showTime=showTime)
+        self.__log_line(log=cr)
+    def success(self, *msg:str, severe:bool=False, showTime:bool=None):
+        msg = " ".join([str(m) for m in msg])
+        cr = self.__create_line(logType=ELogTypes.success, message=f'{msg}', severe=severe, showTime=showTime)
+        self.__log_line(log=cr)
+    def info(self, *msg:str, severe:bool=False, showTime:bool=None):
+        msg = " ".join([str(m) for m in msg])
+        cr = self.__create_line(logType=ELogTypes.info, message=f'{msg}', severe=severe, showTime=showTime)
+        self.__log_line(log=cr)
+    def __create_line(self, logType:ELogTypes, message:str, severe:bool, showTime:bool) -> ColoredLog:
         cr = self.__createConsoleRecord(
             type=logType,
             message=message, severe=severe,
@@ -117,11 +142,30 @@ class Console:
             bgColor=getDefaultBgColor(logType=logType, isSevere=severe)
         )
         if (self.settings.keepHistory):
-            self.__logDict[id(cr)] = cr
+            self.__log_history[id(cr)] = cr
         return cr
+    def __log_line(self, log:ColoredLog):
+        # Print out the log to console
+        print(log)
+        # Handle printing to the logfile
+
+
+        if (self.__logger is not None):
+            # Clean up the log message: remove all color characters
+            printable = set(string.printable)
+            _logmsg = "".join(filter(lambda x: x in printable, log.message))
+            _logmsg = re.sub('\[\d{1,2}m', '', _logmsg)
+            logmsg = f"{str(log.type.value).ljust(8)} {_logmsg}"
+
+            # Format the message some more
+            if (log.showTime):
+                logmsg = f"{str(log.type.value).ljust(8)} {log.timestamp} - {_logmsg}"
+            if (log.severe):
+                logmsg = logmsg.upper()
+            self.__logger.log(msg=logmsg, level=logging.DEBUG)
     # endregion
 
-    def __createConsoleRecord(self, type:ELogTypes, message:str, severe:bool, showTime:bool, textColor:str, bgColor:str):
+    def __createConsoleRecord(self, type:ELogTypes, message:str, severe:bool, showTime:bool, textColor:str, bgColor:str) -> ColoredLog:
         return ColoredLog(
             type=type,
             message=message,
@@ -141,7 +185,8 @@ class Console:
         return cr.__str__()
 
     def showHistory(self):
-        for _id, cr in self.__logDict.items():
+        cr: ColoredLog
+        for _id, cr in self.__log_history.items():
             print(cr)
     def refresh_console(self):
         """ Clears screen and prints history anew """
