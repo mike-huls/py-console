@@ -1,6 +1,6 @@
 venv/
 .idea/
-test/
+test/*.log
 update_instructions.md
 /dist
 *.egg-info

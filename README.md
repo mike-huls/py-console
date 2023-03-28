@@ -15,7 +15,7 @@ Main features:
 ### Demo
 
 ```python
-    from src.py_console import console, bgColor, textColor
+    from py_console import console, bgColor, textColor
 
 # Specify console settings
 # Show time in console.log, console.warn etc by default?

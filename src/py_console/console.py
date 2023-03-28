@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 import colorama
 
-from src.py_console.definitions import ELogTypes
+from py_console.definitions import ELogTypes
 
 
 class ColoredLog:

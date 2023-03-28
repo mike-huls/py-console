@@ -1,6 +1,6 @@
 [project]
 name = "py_console"
-version = "0.1.5"
+version = "0.1.6"
 description = "Colorful JavaScript-like console logging"
 requires-python = ">=3.9"
 readme = "README.md"
